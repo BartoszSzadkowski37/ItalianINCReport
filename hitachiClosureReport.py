@@ -2,6 +2,7 @@ import openpyxl
 from openpyxl.utils import get_column_letter, column_index_from_string
 import datetime
 import Incident
+import pyinputplus as pyip
 
 #function to get letters of specific columns
 def getLetters():
@@ -34,10 +35,24 @@ def getLetters():
 
 # This function will filter data by date and create array of INC elements
 def dataFilter(lastReportDate):
-    global Incidents
+    global incidents
     # loop through rows
     for row in range(2, sheet.max_row + 1):
-        #HERE
+        currentRowResolvedDate = sheet[resolvedCol+str(row)].value
+        if currentRowResolvedDate > lastReportDate:
+            currentSnowNumber = sheet[snowNumberCol+str(row)].value
+            currentShortDesc = sheet[shortDescCol+str(row)].value
+            currentDesc = sheet[descCol+str(row)].value
+            currentResultInfo = sheet[resolvedCol+str(row)].value
+
+            currentIncident = Incident.Incident(currentSnowNumber, currentShortDesc, currentDesc, currentRowResolvedDate, currentResultInfo)
+
+            incidents.append(currentIncident)
+
+            f = open('incidents.txt', 'a')
+            f.write(str(currentIncident.snowNumber) + '\n')
+            f.close()
+        
 
 #opening the workbook
 wb=openpyxl.load_workbook('incident.xlsx')
@@ -50,14 +65,14 @@ descCol=''
 resolvedCol=''
 resolutionInfoCol=''
 
+#getting columns' letters 
 getLetters()
 
-Incidents = []
+#array of incident objects
+incidents = []
 
-#print(sheet[snowNumberCol+'2'])
 
-print('snowNumberCol=', snowNumberCol)
-print('shortDescCol=', shortDescCol)
-print('descCol=', descCol)
-print('resolvedCol=', resolvedCol)
-print('resolutionInfoCol=', resolutionInfoCol)
+lastReportDate = pyip.inputDatetime('Date of last report: ', formats=['%Y/%m/%d %H:%M'])
+
+#filter incidents by date provided by user and appending incidents array by filtered objects
+dataFilter(lastReportDate)

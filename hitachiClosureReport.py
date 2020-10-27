@@ -11,6 +11,7 @@ def getLetters():
     global descCol
     global resolvedCol
     global resolutionInfoCol
+    global locationCol
     for i in range(1, sheet.max_column + 1):
         columnValue = sheet[get_column_letter(i) + '1'].value
         columnLetter = get_column_letter(i) 
@@ -29,6 +30,9 @@ def getLetters():
         elif columnValue=='Resolution Information':
             resolutionInfoCol = columnLetter
             print(resolutionInfoCol)
+        elif columnValue=='Location':
+            locationCol = columnLetter
+            print(locationCol)
 
             
     return
@@ -39,18 +43,27 @@ def dataFilter(lastReportDate):
     # loop through rows
     for row in range(2, sheet.max_row + 1):
         currentRowResolvedDate = sheet[resolvedCol+str(row)].value
-        if currentRowResolvedDate > lastReportDate:
+        currentLocation = sheet[locationCol+str(row)].value
+        if currentRowResolvedDate > lastReportDate and  currentLocation == 'HRAIL.IT.Napoli.Hitachi Rail Spa':
             currentSnowNumber = sheet[snowNumberCol+str(row)].value
             currentShortDesc = sheet[shortDescCol+str(row)].value
             currentDesc = sheet[descCol+str(row)].value
             currentResultInfo = sheet[resolvedCol+str(row)].value
-
-            currentIncident = Incident.Incident(currentSnowNumber, currentShortDesc, currentDesc, currentRowResolvedDate, currentResultInfo)
+            currentIncident = Incident.Incident(currentSnowNumber, currentShortDesc, currentDesc, currentRowResolvedDate, currentResultInfo, currentLocation)
 
             incidents.append(currentIncident)
 
+            currentIncident.getHRIandREF()
+
+            if currentIncident.REF == '' or currentIncident.hriNumber == '':
+                ### HERE ####
+
+                #IF INCIDENT DOES NOT HAVE REF OR HRI NUMBER IT SEEMS THAT IS TICKET NOT FROM HRI AND 
+                #SHOULD NOT BE INCLUDE IN THE REPORT IN THAT CASE DELETE THIS INC OBJECT
+
+            #ELSE ADD THIS INFO TO THE TEMPLATE
             f = open('incidents.txt', 'a')
-            f.write(str(currentIncident.snowNumber) + '\n')
+            f.write(str(currentIncident.snowNumber) + ' ' + currentIncident.hriNumber + ' ' + currentIncident.location + ' ' + currentIncident.REF + '\n')
             f.close()
         
 
@@ -64,6 +77,7 @@ shortDescCol=''
 descCol=''
 resolvedCol=''
 resolutionInfoCol=''
+locationCol=''
 
 #getting columns' letters 
 getLetters()

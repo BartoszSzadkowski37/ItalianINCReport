@@ -12,6 +12,7 @@ class Incident():
         self.italianResolution = ''
         self.englishResolution = ''
         self.unknownResolution = ''
+        self.resolutionTemplate = ''
         
     def getHRIandREF(self):
         # create regexes
@@ -36,4 +37,35 @@ class Incident():
             self.hriNumber = self.hriNumber[:-1]
 
             self.REF = refMatch.group()
+            self.REF = self.REF[4:len(self.REF)]
+
+    def createTheTemplate(self):
+        self.resolutionTemplate = '''
+
+        Hello,
+        please be informed that the incident ''' + self.hriNumber + ''' has been resolved.
+        Resolution information: [RESOLUTION INFO].
+
+        The ticket has been resolved and will be closed within 5 days.
+        If you do not agree with the Solution or the issue persists, please send your feedback and the request/ticket will be Reopened.
+        After 5 days you have to raise a new request/ticket.
+  
+        Best Regards 
+        Bridge Hitachi Team
+        ----------------------------------------
+        Buongiorno,
+        l'incidente nr. ''' + self.hriNumber + ''' è stato lavorato
+
+        Informazioni sulla risoluzione: [RESOLUTION INFO].
+ 
+        Il ticket è stato risolto e verrà chiuso entro 5 giorni.
+        Se non si è d'accordo con la Soluzione o il problema persiste, si prega di inviare il proprio feedback e la richiesta/ticket verrà riaperto.
+        Dopo 5 giorni si deve presentare una nuova richiesta/ticket.
+ 
+        Distinti saluti
+        Hitachi Bridge Team
+  
+        REF: ''' + self.REF 
+
 # thing about solving resolution getting
+
